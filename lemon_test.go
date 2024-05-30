@@ -1,7 +1,7 @@
 package lemon
 
 import (
-	"fmt"
+	"context"
 	"testing"
 )
 
@@ -17,20 +17,21 @@ task id | result | throw | prerequisite task ids
 		t.Error("input parsing failed")
 	}
 
-	_ = tasks
+	ochestrator := NewTaskOchestrator()
+	res, err := ochestrator.Run(context.Background(), tasks)
+	if err != nil {
+		t.Error("ochestrator running failed")
+		return
+	}
 
-	expected := `
-completed tasks: [0:10, 1:20]
-failed tasks: []
-`
-	fmt.Println(expected)
-
-	// result := Print()
-	// expected := 5
-
-	// if result != expected {
-	// 	t.Errorf("Print() = %d; want %d", result, expected)
-	// }
+	printer := PlainTextBatchTaskResultPrinter{}
+	output := printer.Print(res)
+	expected := `completed tasks: [0:10, 1:20]
+failed tasks: []`
+	if output != expected {
+		t.Error("unexpected output")
+		return
+	}
 }
 
 func TestExample2(t *testing.T) {
@@ -41,13 +42,27 @@ task id | result | throw | prerequisite task ids
 2       | 25     | false | [0, 1]
 3       | 35     | true  | [0]
 `
-	fmt.Println(input)
+	scanner := &PlainTextBatchTaskScanner{}
+	tasks, err := scanner.Scan(input)
+	if err != nil {
+		t.Error("input parsing failed")
+	}
 
-	expected := `
-completed tasks: [0:5]
-failed tasks: [1, 2, 3]
-`
-	fmt.Println(expected)
+	ochestrator := NewTaskOchestrator()
+	res, err := ochestrator.Run(context.Background(), tasks)
+	if err != nil {
+		t.Error("ochestrator running failed")
+		return
+	}
+
+	printer := PlainTextBatchTaskResultPrinter{}
+	output := printer.Print(res)
+	expected := `completed tasks: [0:5]
+failed tasks: [1, 2, 3]`
+	if output != expected {
+		t.Error("unexpected output")
+		return
+	}
 }
 
 func TestExample3(t *testing.T) {
@@ -57,10 +72,24 @@ task id | result | throw | prerequisite task ids
 1       | 20     | false | [0]
 2       | 30     | false | [1]
 `
-	fmt.Println(input)
+	scanner := &PlainTextBatchTaskScanner{}
+	tasks, err := scanner.Scan(input)
+	if err != nil {
+		t.Error("input parsing failed")
+	}
 
-	expected := `
-cyclic dependencies detected: true
-`
-	fmt.Println(expected)
+	ochestrator := NewTaskOchestrator()
+	res, err := ochestrator.Run(context.Background(), tasks)
+	if err != nil {
+		t.Error("ochestrator running failed")
+		return
+	}
+
+	printer := PlainTextBatchTaskResultPrinter{}
+	output := printer.Print(res)
+	expected := `cyclic dependencies detected: true`
+	if output != expected {
+		t.Error("unexpected output")
+		return
+	}
 }

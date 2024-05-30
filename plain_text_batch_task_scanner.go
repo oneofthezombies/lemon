@@ -44,12 +44,11 @@ func (s *PlainTextBatchTaskScanner) Scan(input string) (Tasks, error) {
 		}
 
 		prerequisitesFormat := strings.TrimSpace(rows[3])
-		prerequisitesLength := len(prerequisitesFormat)
-		if prerequisitesFormat[0] != '[' || prerequisitesFormat[prerequisitesLength-1] != ']' {
+		if prerequisitesFormat[0] != '[' || prerequisitesFormat[len(prerequisitesFormat)-1] != ']' {
 			return nil, fmt.Errorf("invalid prerequisites format in row %d", rowIdx)
 		}
 
-		unwrappedPrerequisitesFormat := prerequisitesFormat[1 : prerequisitesLength-1]
+		unwrappedPrerequisitesFormat := prerequisitesFormat[1 : len(prerequisitesFormat)-1]
 		var prerequisites []string
 		if len(unwrappedPrerequisitesFormat) > 0 {
 			prerequisites = strings.Split(unwrappedPrerequisitesFormat, ",")

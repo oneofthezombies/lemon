@@ -1,7 +1,9 @@
 package lemon
 
-type TaskID = int
-type Result = int
+type (
+	TaskID = int
+	Result = int
+)
 
 type Task struct {
 	ID                  TaskID
@@ -12,8 +14,15 @@ type Task struct {
 
 type Tasks = []*Task
 
+type TaskResult struct {
+	ID        TaskID
+	IsSuccess bool
+	Result    Result // Valid if IsSuccess == true
+	Error     error  // Valid if IsSuccess == false
+}
+
 type BatchTaskResult struct {
-	CompletedTasks             []*Task
-	FailedTasks                []*Task
+	CompletedTasks             []*TaskResult
+	FailedTasks                []*TaskResult
 	CyclicDependenciesDetected bool
 }
